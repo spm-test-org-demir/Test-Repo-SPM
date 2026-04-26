@@ -20,3 +20,15 @@ export function shortSha(sha: string): string {
 export function firstLine(msg: string): string {
   return msg.split('\n')[0].trim();
 }
+
+/** Truncate a string to a max length, appending an ellipsis when cut */
+export function truncate(str: string, max = 72): string {
+  return str.length <= max ? str : str.slice(0, max).trimEnd() + '…';
+}
+
+/** Format a large number to a compact human-readable string (e.g. 1 500 → 1.5k) */
+export function formatNumber(n: number): string {
+  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
+  if (n >= 1_000)     return `${(n / 1_000).toFixed(1)}k`;
+  return String(n);
+}
