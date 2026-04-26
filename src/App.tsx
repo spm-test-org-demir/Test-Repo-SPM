@@ -1,5 +1,5 @@
 import { useGitHubData } from './useGitHubData';
-import { fmtDate, shortSha, firstLine } from './utils';
+import { fmtDate, shortSha, firstLine, truncate } from './utils';
 import type { PullRequest, Commit, Branch, Issue } from './types';
 import { useState, useEffect } from 'react';
 
@@ -46,7 +46,7 @@ function PullsCard() {
           <div className="item" key={pr.id}>
             <a className="item-title" href={pr.html_url} target="_blank" rel="noreferrer">
               <span className="tag tag-green">PR #{pr.number}</span>{' '}
-              {pr.title}
+              {truncate(pr.title)}
             </a>
             <div className="item-meta">
               <span>{pr.user.login}</span>
@@ -79,7 +79,7 @@ function IssuesCard() {
           <div className="item" key={issue.id}>
             <a className="item-title" href={issue.html_url} target="_blank" rel="noreferrer">
               <span className="tag tag-orange">#{issue.number}</span>{' '}
-              {issue.title}
+              {truncate(issue.title)}
             </a>
             <div className="item-meta">
               <span>{issue.user.login}</span>
