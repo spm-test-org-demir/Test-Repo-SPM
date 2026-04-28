@@ -1,6 +1,7 @@
 import { useGitHubData } from './useGitHubData';
 import { fmtDate, shortSha, firstLine } from './utils';
-import type { PullRequest, Commit, Branch, Issue } from './types';
+import type { PullRequest, Commit, Branch, Issue, RepoInfo } from './types';
+import { useGitHubSingle } from './useGitHubData';
 import { useState, useEffect } from 'react';
 
 const REFRESH_MS = 60_000;
@@ -127,6 +128,57 @@ function IssuesCard() {
   );
 }
 
+/* ── Repository Stats ───────────────────────────────────────────────────── */
+function RepoStatsCard() {
+  const { data, loading, error } = useGitHubSingle<RepoInfo>('/repo', REFRESH_MS);
+  return (
+    <section className="card">
+      <div className="card-header">
+        <h2>Repository Stats</h2>
+      </div>
+      <div className="card-body">
+        {loading && !data && <div className="state-msg">Loading…</div>}
+        {error && <div className="state-msg error">⚠ {error}</div>}
+        {data && (
+          <>
+            {data.description && (
+              <p className="repo-description">{data.description}</p>
+            )}
+            <div className="repo-stats-grid">
+              <div className="repo-stat">
+                <span className="repo-stat-icon">⭐</span>
+                <span className="repo-stat-value">{data.stargazers_count.toLocaleString()}</span>
+                <span className="repo-stat-label">Stars</span>
+              </div>
+              <div className="repo-stat">
+                <span className="repo-stat-icon">🍴</span>
+                <span className="repo-stat-value">{data.forks_count.toLocaleString()}</span>
+                <span className="repo-stat-label">Forks</span>
+              </div>
+              <div className="repo-stat">
+                <span className="repo-stat-icon">👁</span>
+                <span className="repo-stat-value">{data.watchers_count.toLocaleString()}</span>
+                <span className="repo-stat-label">Watchers</span>
+              </div>
+              <div className="repo-stat">
+                <span className="repo-stat-icon">⚠</span>
+                <span className="repo-stat-value">{data.open_issues_count.toLocaleString()}</span>
+                <span className="repo-stat-label">Open Issues</span>
+              </div>
+            </div>
+            <div className="item-meta" style={{ marginTop: '0.75rem' }}>
+              {data.language && (
+                <span className="tag tag-blue">{data.language}</span>
+              )}
+              <span className="tag">default: {data.default_branch}</span>
+            </div>
+          </>
+        )}
+      </div>
+    </section>
+  );
+}
+
 export default function App() {
   const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
 
@@ -148,6 +200,7 @@ export default function App() {
         </p>
       </header>
       <div className="grid">
+        <RepoStatsCard />
         <PullsCard />
         <IssuesCard />
         <CommitsCard />
