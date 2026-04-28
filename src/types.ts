@@ -36,3 +36,13 @@ export interface SectionState<T> {
   loading: boolean;
   error: string | null;
 }
+
+export interface RepoInfo {
+  stargazers_count: number;
+  forks_count: number;
+  watchers_count: number;
+  open_issues_count: number;
+  language: string | null;
+  description: string | null;
+  default_branch: string;
+}

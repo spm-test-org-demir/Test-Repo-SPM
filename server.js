@@ -86,6 +86,18 @@ app.get('/api/branches', async (_req, res) => {
   }
 });
 
+// GET /api/repo → repository metadata (stars, forks, watchers, language)
+app.get('/api/repo', async (_req, res) => {
+  try {
+    const { status, body } = await githubFetch(
+      `/repos/${GITHUB_OWNER}/${GITHUB_REPO}`
+    );
+    res.status(status).json(body);
+  } catch (err) {
+    res.status(502).json({ error: err.message });
+  }
+});
+
 // GET /api/issues → open issues (excludes pull requests)
 app.get('/api/issues', async (_req, res) => {
   try {
