@@ -1,7 +1,6 @@
-import { useGitHubData } from './useGitHubData';
+import { useGitHubData, useGitHubSingle } from './useGitHubData';
 import { fmtDate, shortSha, firstLine } from './utils';
-import type { PullRequest, Commit, Branch, Issue, RepoInfo } from './types';
-import { useGitHubSingle } from './useGitHubData';
+import type { PullRequest, Commit, Branch, Issue, RepoInfo, Contributor } from './types';
 import { useState, useEffect } from 'react';
 
 const REFRESH_MS = 60_000;

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import type { SectionState } from './types';
 
 const BASE = 'http://localhost:3001/api';
@@ -10,26 +10,32 @@ export function useGitHubData<T>(path: string, intervalMs = 60_000) {
     error: null,
   });
 
-  const fetchData = useCallback(async () => {
-    setState((s) => ({ ...s, loading: true, error: null }));
-    try {
-      const res = await fetch(`${BASE}${path}`);
-      if (!res.ok) {
-        const body = await res.json().catch(() => ({}));
-        throw new Error(body?.message ?? `HTTP ${res.status}`);
-      }
-      const json: T[] = await res.json();
-      setState({ data: json, loading: false, error: null });
-    } catch (err: unknown) {
-      setState({ data: null, loading: false, error: (err as Error).message });
-    }
-  }, [path]);
-
   useEffect(() => {
-    fetchData();
-    const id = setInterval(fetchData, intervalMs);
-    return () => clearInterval(id);
-  }, [fetchData, intervalMs]);
+    const controller = new AbortController();
+
+    async function run() {
+      setState((s) => ({ ...s, loading: true, error: null }));
+      try {
+        const res = await fetch(`${BASE}${path}`, { signal: controller.signal });
+        if (!res.ok) {
+          const body = await res.json().catch(() => ({}));
+          throw new Error((body as { message?: string })?.message ?? `HTTP ${res.status}`);
+        }
+        const json: T[] = await res.json();
+        setState({ data: json, loading: false, error: null });
+      } catch (err: unknown) {
+        if ((err as Error).name === 'AbortError') return;
+        setState({ data: null, loading: false, error: (err as Error).message });
+      }
+    }
+
+    void run();
+    const id = setInterval(() => void run(), intervalMs);
+    return () => {
+      controller.abort();
+      clearInterval(id);
+    };
+  }, [path, intervalMs]);
 
   return state;
 }
@@ -40,29 +46,35 @@ export function useGitHubSingle<T>(path: string, intervalMs = 60_000) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchData = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const res = await fetch(`${BASE}${path}`);
-      if (!res.ok) {
-        const body = await res.json().catch(() => ({}));
-        throw new Error(body?.message ?? `HTTP ${res.status}`);
-      }
-      const json: T = await res.json();
-      setData(json);
-    } catch (err: unknown) {
-      setError((err as Error).message);
-    } finally {
-      setLoading(false);
-    }
-  }, [path]);
-
   useEffect(() => {
-    fetchData();
-    const id = setInterval(fetchData, intervalMs);
-    return () => clearInterval(id);
-  }, [fetchData, intervalMs]);
+    const controller = new AbortController();
+
+    async function run() {
+      setLoading(true);
+      setError(null);
+      try {
+        const res = await fetch(`${BASE}${path}`, { signal: controller.signal });
+        if (!res.ok) {
+          const body = await res.json().catch(() => ({}));
+          throw new Error((body as { message?: string })?.message ?? `HTTP ${res.status}`);
+        }
+        const json: T = await res.json();
+        setData(json);
+      } catch (err: unknown) {
+        if ((err as Error).name === 'AbortError') return;
+        setError((err as Error).message);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    void run();
+    const id = setInterval(() => void run(), intervalMs);
+    return () => {
+      controller.abort();
+      clearInterval(id);
+    };
+  }, [path, intervalMs]);
 
   return { data, loading, error };
 }
