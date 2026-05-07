@@ -510,3 +510,19 @@ a { color: inherit; text-decoration: none; }
   gap: 0.4rem;
   padding: 0.6rem 0.85rem;
 }
+
+/* ── Full-width card (Git Graph) ─────────────────────────────────────── */
+.card--full {
+  margin-top: var(--gap);
+  grid-column: 1 / -1;
+}
+
+.git-graph-scroll {
+  overflow-x: auto;
+  padding: 0.5rem 0.85rem 0.85rem;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+.git-graph-scroll::-webkit-scrollbar { height: 6px; }
+.git-graph-scroll::-webkit-scrollbar-track { background: transparent; }
+.git-graph-scroll::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }

@@ -1,6 +1,6 @@
 import { useGitHubData, useGitHubSingle } from './useGitHubData';
 import { fmtDate, shortSha, firstLine } from './utils';
-import type { PullRequest, Commit, Branch, Issue, RepoInfo, Contributor } from './types';
+import type { PullRequest, Commit, Branch, Issue, RepoInfo, Contributor, GitGraphData, GraphCommit, GraphBranch } from './types';
 import { useState, useEffect } from 'react';
 
 const REFRESH_MS = 300_000; // 5 minutes
@@ -309,6 +309,162 @@ function ContributorsCard() {
   );
 }
 
+/* ── Git Graph ──────────────────────────────────────────────────────────── */
+const LANE_COLORS = ['#58a6ff','#3fb950','#d29922','#f778ba','#a371f7','#fd8c73','#39d353'];
+const LANE_W = 22;
+const ROW_H  = 40;
+const CR     = 5;
+const PL     = 10;
+
+function laneX(l: number) { return PL + l * LANE_W + LANE_W / 2; }
+function rowY(r: number)  { return 12 + r * ROW_H; }
+
+function assignLane(
+  commit: GraphCommit,
+  branchLane: Map<string, number>,
+  mainName: string,
+  branches: GraphBranch[]
+): number {
+  const isHeadOfFeature = branches.some(
+    (b) => b.name !== mainName && b.headSha === commit.sha
+  );
+  let lane = 0;
+  for (const bn of commit.branches) {
+    const l = branchLane.get(bn) ?? 0;
+    if (l > lane) lane = l;
+  }
+  const onMain = commit.branches.includes(mainName);
+  if (onMain && !isHeadOfFeature && commit.branches.length > 1) lane = 0;
+  return lane;
+}
+
+function GitGraph({ data }: { data: GitGraphData }) {
+  const mainName = (data.branches.find((b) => b.name === 'main' || b.name === 'master') ?? data.branches[0])?.name ?? 'main';
+  const ordered: GraphBranch[] = [
+    ...data.branches.filter((b) => b.name === mainName),
+    ...data.branches.filter((b) => b.name !== mainName),
+  ];
+  const branchLane = new Map<string, number>();
+  ordered.forEach((b, i) => branchLane.set(b.name, i));
+  const numLanes = ordered.length;
+
+  const commitLane = new Map<string, number>();
+  const commitRow  = new Map<string, number>();
+  data.commits.forEach((c, i) => {
+    commitRow.set(c.sha, i);
+    commitLane.set(c.sha, assignLane(c, branchLane, mainName, data.branches));
+  });
+
+  const textStart = PL + numLanes * LANE_W + 14;
+  const svgW = textStart + 460;
+  const svgH = data.commits.length * ROW_H + 24;
+
+  return (
+    <div className="git-graph-scroll">
+      <svg width={svgW} height={svgH}>
+        {/* Lane guide lines */}
+        {ordered.map((b, i) => (
+          <line key={b.name}
+            x1={laneX(i)} y1={0} x2={laneX(i)} y2={svgH}
+            stroke={LANE_COLORS[i % LANE_COLORS.length]}
+            strokeWidth={1.5} strokeOpacity={0.18}
+          />
+        ))}
+
+        {/* Branch head labels */}
+        {ordered.map((b, i) => {
+          const row = commitRow.get(b.headSha);
+          if (row === undefined) return null;
+          const x = laneX(i);
+          const y = rowY(row);
+          const shortName = b.name.replace(/^(feature|feat|fix|chore)\//i, '');
+          return (
+            <g key={`label-${b.name}`}>
+              <rect
+                x={x + CR + 4} y={y - 9}
+                width={shortName.length * 6.2 + 10} height={17}
+                rx={4} fill={LANE_COLORS[i % LANE_COLORS.length]} fillOpacity={0.18}
+              />
+              <text
+                x={x + CR + 9} y={y + 3}
+                fontSize={10} fill={LANE_COLORS[i % LANE_COLORS.length]}
+                fontFamily="monospace" fontWeight={600}
+              >{shortName}</text>
+            </g>
+          );
+        })}
+
+        {/* Parent → child connections */}
+        {data.commits.flatMap((c) => {
+          const cLane = commitLane.get(c.sha) ?? 0;
+          const cRow  = commitRow.get(c.sha)  ?? 0;
+          const cx = laneX(cLane);
+          const cy = rowY(cRow);
+          return c.parents.map((pSha, pi) => {
+            const pRow = commitRow.get(pSha);
+            if (pRow === undefined) return null;
+            const pLane = commitLane.get(pSha) ?? 0;
+            const px = laneX(pLane);
+            const py = rowY(pRow);
+            const color = LANE_COLORS[cLane % LANE_COLORS.length];
+            if (cx === px) {
+              return <line key={`${c.sha}-${pi}`} x1={cx} y1={cy} x2={px} y2={py} stroke={color} strokeWidth={1.5} />;
+            }
+            const my = (cy + py) / 2;
+            return (
+              <path key={`${c.sha}-${pi}`}
+                d={`M ${cx} ${cy} C ${cx} ${my}, ${px} ${my}, ${px} ${py}`}
+                stroke={color} strokeWidth={1.5} fill="none"
+              />
+            );
+          });
+        })}
+
+        {/* Commit circles + text */}
+        {data.commits.map((c, i) => {
+          const lane  = commitLane.get(c.sha) ?? 0;
+          const cx    = laneX(lane);
+          const cy    = rowY(i);
+          const color = LANE_COLORS[lane % LANE_COLORS.length];
+          const msg   = firstLine(c.message);
+          return (
+            <g key={c.sha}>
+              <circle cx={cx} cy={cy} r={CR + 1} fill="#161b22" />
+              <circle cx={cx} cy={cy} r={CR} fill={color} />
+              <text x={textStart} y={cy - 5} fontSize={11.5}
+                fill="#e6edf3" fontFamily="monospace"
+                style={{ dominantBaseline: 'auto' }}>
+                {msg.length > 52 ? msg.slice(0, 52) + '…' : msg}
+              </text>
+              <text x={textStart} y={cy + 8} fontSize={10}
+                fill="#8b949e" fontFamily="monospace"
+                style={{ dominantBaseline: 'auto' }}>
+                {shortSha(c.sha)} · {c.author} · {fmtDate(c.date)}
+              </text>
+            </g>
+          );
+        })}
+      </svg>
+    </div>
+  );
+}
+
+function GitGraphCard() {
+  const { data, loading, error } = useGitHubSingle<GitGraphData>('/git-graph', REFRESH_MS);
+  return (
+    <section className="card card--full">
+      <div className="card-header">
+        <h2>Commit Graph</h2>
+        {data && <span className="badge">{data.commits.length} commits · {data.branches.length} branches</span>}
+      </div>
+      <div className="card-body">
+        {!data && <LoadingOrError loading={loading} error={error} />}
+        {data && <GitGraph data={data} />}
+      </div>
+    </section>
+  );
+}
+
 export default function App() {
   const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
 
@@ -355,6 +511,7 @@ export default function App() {
         <BranchesCard />
         <ContributorsCard />
       </div>
+      <GitGraphCard />
     </div>
   );
 }

@@ -124,6 +124,51 @@ app.get('/api/contributors', async (_req, res) => {
   }
 });
 
+// GET /api/git-graph → branch + commit data for graph rendering
+app.get('/api/git-graph', async (_req, res) => {
+  try {
+    const { body: rawBranches } = await githubFetch(
+      `/repos/${GITHUB_OWNER}/${GITHUB_REPO}/branches?per_page=20`
+    );
+    if (!Array.isArray(rawBranches)) {
+      return res.status(502).json({ error: 'Unexpected branches response' });
+    }
+
+    const commitMap = new Map(); // sha → commit
+    const shaToB    = new Map(); // sha → string[] branch names
+    const branchData = [];
+
+    for (const branch of rawBranches) {
+      branchData.push({ name: branch.name, headSha: branch.commit.sha });
+      const { body: commits } = await githubFetch(
+        `/repos/${GITHUB_OWNER}/${GITHUB_REPO}/commits?sha=${encodeURIComponent(branch.name)}&per_page=20`
+      );
+      if (!Array.isArray(commits)) continue;
+      for (const c of commits) {
+        if (!commitMap.has(c.sha)) {
+          commitMap.set(c.sha, {
+            sha: c.sha,
+            message: c.commit.message,
+            author: c.commit.author.name,
+            date: c.commit.author.date,
+            parents: c.parents.map((p) => p.sha),
+          });
+        }
+        if (!shaToB.has(c.sha)) shaToB.set(c.sha, []);
+        shaToB.get(c.sha).push(branch.name);
+      }
+    }
+
+    const commits = Array.from(commitMap.values())
+      .map((c) => ({ ...c, branches: shaToB.get(c.sha) || [] }))
+      .sort((a, b) => new Date(b.date) - new Date(a.date));
+
+    res.json({ branches: branchData, commits });
+  } catch (err) {
+    res.status(502).json({ error: err.message });
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`[proxy] Running on http://localhost:${PORT}`);
   console.log(`[proxy] Proxying: ${GITHUB_OWNER}/${GITHUB_REPO}`);
