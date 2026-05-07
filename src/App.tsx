@@ -354,8 +354,8 @@ function GitGraph({ data }: { data: GitGraphData }) {
 
   const LABEL_W = 132;
   const COL_W   = 90;
-  const H_ROW   = 58;
-  const BOTTOM  = 60;
+  const H_ROW   = 46;
+  const BOTTOM  = 16;
   const C_R     = 5;
 
   const laneY = (l: number) => 10 + l * H_ROW + H_ROW / 2;
@@ -422,19 +422,17 @@ function GitGraph({ data }: { data: GitGraphData }) {
           });
         })}
 
-        {/* Commit circles + SHA + rotated message */}
+        {/* Commit circles + SHA only (hover for full message) */}
         {data.commits.map((c) => {
-          const lane  = commitLane.get(c.sha) ?? 0;
-          const rank  = commitRank.get(c.sha) ?? 0;
-          const cx    = colX(rank);
-          const cy    = laneY(lane);
-          const color = LANE_COLORS[lane % LANE_COLORS.length];
-          const msg   = firstLine(c.message);
+          const lane   = commitLane.get(c.sha) ?? 0;
+          const rank   = commitRank.get(c.sha) ?? 0;
+          const cx     = colX(rank);
+          const cy     = laneY(lane);
+          const color  = LANE_COLORS[lane % LANE_COLORS.length];
           const isHead = data.branches.some((b) => b.headSha === c.sha);
-          const textY = cy + C_R + 14;
           return (
             <g key={c.sha}>
-              <title>{msg}{'\n'}{c.author} · {fmtDate(c.date)}</title>
+              <title>{firstLine(c.message)}{'\n'}{c.author} · {fmtDate(c.date)}</title>
               {isHead && (
                 <circle cx={cx} cy={cy} r={C_R + 4}
                   fill="none" stroke={color} strokeWidth={1} strokeOpacity={0.45} />
@@ -443,11 +441,6 @@ function GitGraph({ data }: { data: GitGraphData }) {
               <circle cx={cx} cy={cy} r={C_R} fill={color} />
               <text x={cx} y={cy + C_R + 11} fontSize={9} fill="#8b949e"
                 fontFamily="monospace" textAnchor="middle">{shortSha(c.sha)}</text>
-              <text fontSize={9} fill="#c9d1d9" fontFamily="monospace"
-                transform={`rotate(-42, ${cx}, ${textY})`}
-                x={cx} y={textY} textAnchor="start">
-                {msg.length > 22 ? msg.slice(0, 22) + '…' : msg}
-              </text>
             </g>
           );
         })}
