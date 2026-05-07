@@ -1,6 +1,6 @@
 import { useGitHubData } from './useGitHubData';
 import { fmtDate, shortSha, firstLine } from './utils';
-import type { PullRequest, Commit, Branch, Issue, RepoInfo } from './types';
+import type { PullRequest, Commit, Branch, Issue, RepoInfo, Contributor } from './types';
 import { useGitHubSingle } from './useGitHubData';
 import { useState, useEffect } from 'react';
 
@@ -178,6 +178,48 @@ function RepoStatsCard() {
     </section>
   );
 }
+/* ── Contributors ───────────────────────────────────────────────────────────── */
+function ContributorsCard() {
+  const { data, loading, error } = useGitHubData<Contributor>('/contributors', REFRESH_MS);
+  return (
+    <section className="card">
+      <div className="card-header">
+        <h2>Top Contributors</h2>
+        {data && <span className="badge">{data.length}</span>}
+      </div>
+      <div className="card-body">
+        {!data && <LoadingOrError loading={loading} error={error} />}
+        {data?.length === 0 && !loading && (
+          <div className="state-msg">No contributors found.</div>
+        )}
+        {data?.map((c) => (
+          <div className="contributor-item" key={c.id}>
+            <a
+              href={c.html_url}
+              target="_blank"
+              rel="noreferrer"
+              className="contributor-link"
+              title={c.login}
+            >
+              <img
+                className="contributor-avatar"
+                src={c.avatar_url}
+                alt={c.login}
+                width={32}
+                height={32}
+              />
+              <span className="contributor-login">{c.login}</span>
+            </a>
+            <span className="tag tag-green" title="Commits">
+              {c.contributions} commits
+            </span>
+          </div>
+        ))}
+        {data && error && <LoadingOrError loading={false} error={error} />}
+      </div>
+    </section>
+  );
+}
 
 export default function App() {
   const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
@@ -205,6 +247,7 @@ export default function App() {
         <IssuesCard />
         <CommitsCard />
         <BranchesCard />
+        <ContributorsCard />
       </div>
     </>
   );

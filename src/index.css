@@ -139,3 +139,38 @@ header h1 span { color: var(--muted); font-weight: 400; }
 }
 .branch-name:last-child { border-bottom: none; }
 .branch-name::before { content: '⎇'; color: var(--muted); font-size: 10px; }
+
+/* ── Contributors ───────────────────────────────────────────────────── */
+.contributor-item {
+  padding: 0.4rem 0.85rem;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+}
+.contributor-item:last-child { border-bottom: none; }
+
+.contributor-link {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--text);
+  text-decoration: none;
+  min-width: 0;
+}
+.contributor-link:hover .contributor-login { color: var(--blue); }
+
+.contributor-avatar {
+  border-radius: 50%;
+  flex-shrink: 0;
+  border: 1px solid var(--border);
+}
+
+.contributor-login {
+  font-size: 12.5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: color 0.15s;
+}
