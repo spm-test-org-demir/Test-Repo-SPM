@@ -112,6 +112,18 @@ app.get('/api/issues', async (_req, res) => {
   }
 });
 
+// GET /api/contributors → top contributors
+app.get('/api/contributors', async (_req, res) => {
+  try {
+    const { status, body } = await githubFetch(
+      `/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contributors?per_page=10`
+    );
+    res.status(status).json(body);
+  } catch (err) {
+    res.status(502).json({ error: err.message });
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`[proxy] Running on http://localhost:${PORT}`);
   console.log(`[proxy] Proxying: ${GITHUB_OWNER}/${GITHUB_REPO}`);

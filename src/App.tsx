@@ -217,6 +217,99 @@ function RepoStatsCard() {
   );
 }
 
+/* ── Repository Stats ───────────────────────────────────────────────────── */
+function RepoStatsCard() {
+  const { data, loading, error } = useGitHubSingle<RepoInfo>('/repo', REFRESH_MS);
+  return (
+    <section className="card">
+      <div className="card-header">
+        <h2>Repository Stats</h2>
+      </div>
+      <div className="card-body">
+        {loading && !data && <div className="state-msg">Loading…</div>}
+        {error && <div className="state-msg error">⚠ {error}</div>}
+        {data && (
+          <>
+            {data.description && (
+              <p className="repo-description">{data.description}</p>
+            )}
+            <div className="repo-stats-grid">
+              <div className="repo-stat">
+                <span className="repo-stat-icon">⭐</span>
+                <span className="repo-stat-value">{data.stargazers_count.toLocaleString()}</span>
+                <span className="repo-stat-label">Stars</span>
+              </div>
+              <div className="repo-stat">
+                <span className="repo-stat-icon">🍴</span>
+                <span className="repo-stat-value">{data.forks_count.toLocaleString()}</span>
+                <span className="repo-stat-label">Forks</span>
+              </div>
+              <div className="repo-stat">
+                <span className="repo-stat-icon">👁</span>
+                <span className="repo-stat-value">{data.watchers_count.toLocaleString()}</span>
+                <span className="repo-stat-label">Watchers</span>
+              </div>
+              <div className="repo-stat">
+                <span className="repo-stat-icon">⚠</span>
+                <span className="repo-stat-value">{data.open_issues_count.toLocaleString()}</span>
+                <span className="repo-stat-label">Open Issues</span>
+              </div>
+            </div>
+            <div className="item-meta" style={{ marginTop: '0.75rem' }}>
+              {data.language && (
+                <span className="tag tag-blue">{data.language}</span>
+              )}
+              <span className="tag">default: {data.default_branch}</span>
+            </div>
+          </>
+        )}
+      </div>
+    </section>
+  );
+}
+/* ── Contributors ───────────────────────────────────────────────────────────── */
+function ContributorsCard() {
+  const { data, loading, error } = useGitHubData<Contributor>('/contributors', REFRESH_MS);
+  return (
+    <section className="card">
+      <div className="card-header">
+        <h2>Top Contributors</h2>
+        {data && <span className="badge">{data.length}</span>}
+      </div>
+      <div className="card-body">
+        {!data && <LoadingOrError loading={loading} error={error} />}
+        {data?.length === 0 && !loading && (
+          <div className="state-msg">No contributors found.</div>
+        )}
+        {data?.map((c) => (
+          <div className="contributor-item" key={c.id}>
+            <a
+              href={c.html_url}
+              target="_blank"
+              rel="noreferrer"
+              className="contributor-link"
+              title={c.login}
+            >
+              <img
+                className="contributor-avatar"
+                src={c.avatar_url}
+                alt={c.login}
+                width={32}
+                height={32}
+              />
+              <span className="contributor-login">{c.login}</span>
+            </a>
+            <span className="tag tag-green" title="Commits">
+              {c.contributions} commits
+            </span>
+          </div>
+        ))}
+        {data && error && <LoadingOrError loading={false} error={error} />}
+      </div>
+    </section>
+  );
+}
+
 export default function App() {
   const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
 
@@ -261,6 +354,7 @@ export default function App() {
         <IssuesCard />
         <CommitsCard />
         <BranchesCard />
+        <ContributorsCard />
       </div>
     </div>
   );
