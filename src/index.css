@@ -225,6 +225,201 @@ a { color: inherit; text-decoration: none; }
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   transition: color 0.15s;
 }
+
+.item-title:hover { color: var(--accent); }
+
+.item-meta {
+  display: flex; align-items: center;
+  gap: 0.5rem; flex-wrap: wrap;
+  color: var(--text-dim); font-size: 11px;
+}
+
+.dot-sep::before { content: '·'; margin-right: 0.5rem; }
+
+/* ── Tags ───────────────────────────────────────────────────────────── */
+.tag {
+  display: inline-flex; align-items: center;
+  padding: 1px 6px;
+  border-radius: var(--radius-sm);
+  font-size: 10px; font-weight: 700;
+  white-space: nowrap; flex-shrink: 0;
+  letter-spacing: 0.02em;
+}
+.tag-green  { background: var(--green-dim);  color: var(--green);  border: 1px solid rgba(63,185,80,.3); }
+.tag-blue   { background: var(--accent-dim); color: var(--accent); border: 1px solid rgba(56,139,253,.3); }
+.tag-orange { background: var(--orange-dim); color: var(--orange); border: 1px solid rgba(227,179,65,.3); }
+.tag-purple { background: var(--purple-dim); color: var(--purple); border: 1px solid rgba(188,140,255,.3); }
+
+/* ── Branch list ────────────────────────────────────────────────────── */
+.branch-item {
+  display: flex; align-items: center; gap: 0.6rem;
+  padding: 0.5rem 1rem;
+  border-bottom: 1px solid var(--border);
+  font-size: 12px; color: var(--text);
+  transition: background 0.15s;
+}
+.branch-item:last-child { border-bottom: none; }
+.branch-item:hover { background: rgba(255,255,255,.025); }
+.branch-icon { color: var(--purple); font-size: 11px; flex-shrink: 0; }
+.branch-default .branch-name-text { color: var(--accent); }
+.branch-default-pill {
+  margin-left: auto;
+  font-size: 9px; font-weight: 700;
+  padding: 1px 5px;
+.refresh-badge {
+  display: flex; align-items: center; gap: 5px;
+  font-size: 11px; color: var(--text-dim);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 3px 10px;
+}
+.refresh-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--green);
+  animation: pulse 2s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.3; }
+}
+
+.timestamp { font-size: 11px; color: var(--text-dim); }
+.timestamp strong { color: var(--text); }
+
+/* ── Repo Info Bar ──────────────────────────────────────────────────── */
+.repo-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.6rem 0.9rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-bottom: 1.25rem;
+  font-size: 12px;
+  color: var(--text-dim);
+  flex-wrap: wrap;
+}
+.repo-bar a { color: var(--accent); }
+.repo-bar a:hover { text-decoration: underline; }
+.repo-bar-sep { color: var(--border-hover); }
+
+/* ── Grid ───────────────────────────────────────────────────────────── */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1rem;
+  align-items: start;
+}
+
+/* ── Card ───────────────────────────────────────────────────────────── */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow);
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+.card:hover {
+  box-shadow: var(--shadow-hover);
+  border-color: var(--border-hover);
+}
+
+/* ── Card Header ────────────────────────────────────────────────────── */
+.card-header {
+  display: flex; align-items: center; gap: 0.6rem;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface-2);
+}
+
+.card-icon {
+  width: 26px; height: 26px; border-radius: var(--radius-sm);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; flex-shrink: 0;
+}
+.card-icon.green  { background: var(--green-dim);  color: var(--green);  border: 1px solid rgba(63,185,80,.25); }
+.card-icon.orange { background: var(--orange-dim); color: var(--orange); border: 1px solid rgba(227,179,65,.25); }
+.card-icon.blue   { background: var(--accent-dim); color: var(--accent); border: 1px solid rgba(56,139,253,.25); }
+.card-icon.purple { background: var(--purple-dim); color: var(--purple); border: 1px solid rgba(188,140,255,.25); }
+
+.card-header h2 {
+  flex: 1;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-dim);
+}
+
+.badge {
+  font-size: 11px; font-weight: 700;
+  padding: 1px 8px;
+  border-radius: 10px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text);
+  min-width: 24px; text-align: center;
+}
+
+/* ── Card Body ──────────────────────────────────────────────────────── */
+.card-body { padding: 0; }
+
+/* ── State Messages ─────────────────────────────────────────────────── */
+.state-msg {
+  padding: 1.4rem 1rem;
+  color: var(--text-dim);
+  font-size: 11.5px;
+  text-align: center;
+}
+.state-msg.error {
+  color: var(--red);
+  background: rgba(248,81,73,.06);
+}
+
+/* ── Skeleton Loading ───────────────────────────────────────────────── */
+.skeleton-list { padding: 0.25rem 0; }
+.skeleton-item {
+  padding: 0.65rem 1rem;
+  border-bottom: 1px solid var(--border);
+  display: flex; flex-direction: column; gap: 6px;
+}
+.skeleton-item:last-child { border-bottom: none; }
+.skel {
+  height: 10px;
+  border-radius: 4px;
+  background: linear-gradient(90deg, var(--surface-2) 25%, var(--border) 50%, var(--surface-2) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+.skel-title { width: 75%; }
+.skel-meta  { width: 45%; height: 8px; }
+@keyframes shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ── Items ──────────────────────────────────────────────────────────── */
+.item {
+  padding: 0.6rem 1rem;
+  border-bottom: 1px solid var(--border);
+  display: flex; flex-direction: column; gap: 4px;
+  transition: background 0.15s ease;
+  cursor: pointer;
+}
+.item:last-child { border-bottom: none; }
+.item:hover { background: rgba(255,255,255,.025); }
+
+.item-title {
+  display: block;
+  color: var(--text-bright);
+  font-size: 12.5px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  transition: color 0.15s;
+}
+
 .item-title:hover { color: var(--accent); }
 
 .item-meta {
@@ -276,4 +471,42 @@ a { color: inherit; text-decoration: none; }
 @media (max-width: 600px) {
   .grid { grid-template-columns: 1fr; }
   .topbar { flex-direction: column; align-items: flex-start; }
+}
+
+/* ── Repository Stats ───────────────────────────────────────────────── */
+.repo-description {
+  padding: 0.5rem 0.85rem 0.25rem;
+  font-size: 12px;
+  color: var(--muted);
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 0.25rem;
+}
+
+.repo-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0;
+  padding: 0.6rem 0.85rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.repo-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 0.4rem 0.25rem;
+  border-right: 1px solid var(--border);
+}
+.repo-stat:last-child { border-right: none; }
+
+.repo-stat-icon { font-size: 1rem; line-height: 1; }
+.repo-stat-value { font-size: 1rem; font-weight: 600; color: var(--text); }
+.repo-stat-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
+
+.repo-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  padding: 0.6rem 0.85rem;
 }

@@ -254,7 +254,7 @@ function RepoStatsCard() {
                 <span className="repo-stat-label">Open Issues</span>
               </div>
             </div>
-            <div className="item-meta" style={{ marginTop: '0.75rem' }}>
+            <div className="repo-tags">
               {data.language && (
                 <span className="tag tag-blue">{data.language}</span>
               )}
