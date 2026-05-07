@@ -46,11 +46,3 @@ export interface RepoInfo {
   description: string | null;
   default_branch: string;
 }
-
-export interface Contributor {
-  id: number;
-  login: string;
-  avatar_url: string;
-  html_url: string;
-  contributions: number;
-}

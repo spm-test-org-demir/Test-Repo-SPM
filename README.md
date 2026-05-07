@@ -72,4 +72,4 @@ Open <http://localhost:5173> in your browser.
 | **Recent Commits** | Message, author, date, SHA |
 | **Branches** | Full list with total count |
 
-Auto-refreshes every **60 seconds** without a page reload. Last-updated timestamp is always visible.
+Auto-refreshes every **30 seconds** without a page reload. Last-updated timestamp is always visible.
