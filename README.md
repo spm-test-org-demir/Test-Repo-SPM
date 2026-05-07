@@ -75,4 +75,4 @@ Open <http://localhost:5173> in your browser.
 | **Branches** | Full list with total count |
 | **Top Contributors** | Avatar, username (linked), total commit count |
 
-Auto-refreshes every **30 seconds** without a page reload. Last-updated timestamp is always visible.
+Auto-refreshes every **5 minutes** without a page reload. Last-updated timestamp is always visible.

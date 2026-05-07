@@ -3,7 +3,7 @@ import { fmtDate, shortSha, firstLine } from './utils';
 import type { PullRequest, Commit, Branch, Issue, RepoInfo, Contributor } from './types';
 import { useState, useEffect } from 'react';
 
-const REFRESH_MS = 60_000;
+const REFRESH_MS = 300_000; // 5 minutes
 const OWNER = 'spm-test-org-demir';
 const REPO  = 'Test-Repo-SPM';
 
@@ -330,7 +330,7 @@ export default function App() {
         <div className="topbar-right">
           <div className="refresh-badge">
             <span className="refresh-dot" />
-            live · 60s refresh
+            live · 5m refresh
           </div>
           <span className="timestamp">
             updated <strong>{lastUpdated.toLocaleTimeString()}</strong>
