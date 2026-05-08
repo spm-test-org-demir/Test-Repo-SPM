@@ -46,3 +46,30 @@ export interface RepoInfo {
   description: string | null;
   default_branch: string;
 }
+
+export interface Contributor {
+  id: number;
+  login: string;
+  avatar_url: string;
+  html_url: string;
+  contributions: number;
+}
+
+export interface GraphCommit {
+  sha: string;
+  message: string;
+  author: string;
+  date: string;
+  parents: string[];
+  branches: string[];
+}
+
+export interface GraphBranch {
+  name: string;
+  headSha: string;
+}
+
+export interface GitGraphData {
+  branches: GraphBranch[];
+  commits: GraphCommit[];
+}
