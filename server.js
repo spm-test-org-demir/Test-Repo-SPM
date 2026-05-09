@@ -58,7 +58,7 @@ app.get('/api/pulls', async (_req, res) => {
     );
     res.status(status).json(body);
   } catch (err) {
-    res.status(502).json({ error: err.message });
+    res.status(502).json({ error: err.message, status: err.statusCode ?? 502 });
   }
 });
 
@@ -70,7 +70,7 @@ app.get('/api/commits', async (_req, res) => {
     );
     res.status(status).json(body);
   } catch (err) {
-    res.status(502).json({ error: err.message });
+    res.status(502).json({ error: err.message, status: err.statusCode ?? 502 });
   }
 });
 
@@ -82,7 +82,7 @@ app.get('/api/branches', async (_req, res) => {
     );
     res.status(status).json(body);
   } catch (err) {
-    res.status(502).json({ error: err.message });
+    res.status(502).json({ error: err.message, status: err.statusCode ?? 502 });
   }
 });
 
@@ -94,7 +94,7 @@ app.get('/api/repo', async (_req, res) => {
     );
     res.status(status).json(body);
   } catch (err) {
-    res.status(502).json({ error: err.message });
+    res.status(502).json({ error: err.message, status: err.statusCode ?? 502 });
   }
 });
 
@@ -108,7 +108,7 @@ app.get('/api/issues', async (_req, res) => {
     const issues = Array.isArray(body) ? body.filter((i) => !i.pull_request) : body;
     res.status(status).json(issues);
   } catch (err) {
-    res.status(502).json({ error: err.message });
+    res.status(502).json({ error: err.message, status: err.statusCode ?? 502 });
   }
 });
 
@@ -120,7 +120,7 @@ app.get('/api/contributors', async (_req, res) => {
     );
     res.status(status).json(body);
   } catch (err) {
-    res.status(502).json({ error: err.message });
+    res.status(502).json({ error: err.message, status: err.statusCode ?? 502 });
   }
 });
 
@@ -165,7 +165,7 @@ app.get('/api/git-graph', async (_req, res) => {
 
     res.json({ branches: branchData, commits });
   } catch (err) {
-    res.status(502).json({ error: err.message });
+    res.status(502).json({ error: err.message, status: err.statusCode ?? 502 });
   }
 });
 
