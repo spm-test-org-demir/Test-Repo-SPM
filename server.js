@@ -4,7 +4,7 @@ import cors from 'cors';
 import https from 'https';
 
 const app = express();
-const PORT = 3001;
+const PROXY_PORT = 3001;
 
 const { GITHUB_TOKEN, GITHUB_OWNER, GITHUB_REPO } = process.env;
 
@@ -169,7 +169,7 @@ app.get('/api/git-graph', async (_req, res) => {
   }
 });
 
-app.listen(PORT, () => {
-  console.log(`[proxy] Running on http://localhost:${PORT}`);
+app.listen(PROXY_PORT, () => {
+  console.log(`[proxy] Running on http://localhost:${PROXY_PORT}`);
   console.log(`[proxy] Proxying: ${GITHUB_OWNER}/${GITHUB_REPO}`);
 });
